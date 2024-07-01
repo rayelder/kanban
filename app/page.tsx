@@ -1,95 +1,72 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
+
+import { useState } from 'react'
+import Column from '@/components/Column'
+import initialTasks from '../data/tasks'
+
+import style from './page.module.css'
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    const [tasks, setTasks] = useState(initialTasks)
+    const [draggedTask, setDraggedTask] = useState(null)
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    const onDrop = (columnID: number, positionID: number) => {
+        // console.log(
+        //     `${draggedTask} was dropped on column ${columnID} at position ${positionID}`
+        // )
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+        if (draggedTask === null || draggedTask === undefined) return
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+        const taskToMove = tasks.filter((task) => task.uniqueID === draggedTask)
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+        const updatedTasks = tasks.filter(
+            (task) => task.uniqueID !== draggedTask
+        )
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+        updatedTasks.splice(positionID, 0, {
+            ...taskToMove[0],
+            columnID: columnID,
+        })
+
+        // console.log(updatedTasks)
+        // console.log(`positionID: ${positionID}`)
+
+        setTasks(updatedTasks)
+    }
+
+    const onDelete = (uniqueID: string) => {
+        const updatedTasks = tasks.filter((task) => task.uniqueID !== uniqueID)
+        setTasks(updatedTasks)
+    }
+
+    const addTask = (newTask: any) => {
+        setTasks([newTask, ...tasks])
+    }
+
+    return (
+        <main className={style.main}>
+            <h1>Coding challenge: Kanban</h1>
+
+            <div className={style.columns}>
+                <Column
+                    columnID={0}
+                    title="Backlog"
+                    columnTasks={tasks}
+                    setDraggedTask={setDraggedTask}
+                    onDrop={onDrop}
+                    onDelete={onDelete}
+                    addTask={addTask}
+                />
+                <Column
+                    columnID={1}
+                    title="Completed"
+                    columnTasks={tasks}
+                    setDraggedTask={setDraggedTask}
+                    onDrop={onDrop}
+                    onDelete={onDelete}
+                    addTask={addTask}
+                />
+            </div>
+        </main>
+    )
 }
