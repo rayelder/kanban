@@ -67,6 +67,12 @@ export default function Home() {
                     addTask={addTask}
                 />
             </div>
+            <p className={style.github}>
+                Public repo:&nbsp;
+                <a href="https://github.com/rayelder/kanban" target="_blank">
+                    https://github.com/rayelder/kanban
+                </a>
+            </p>
         </main>
     )
 }
